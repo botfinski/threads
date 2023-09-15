@@ -2,8 +2,13 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs";
 import { fetchUser, fetchUsers } from "@/lib/actions/user.actions";
 import UserCard from "@/components/cards/UserCard";
+import Pagination from "@/components/shared/Pagination";
 
-const Page = async () => {
+const Page = async ({
+	searchParams,
+}: {
+	searchParams: { [key: string]: string | undefined };
+}) => {
 	const user = await currentUser();
 	if (!user) return null;
 
@@ -12,10 +17,8 @@ const Page = async () => {
 
 	const result = await fetchUsers({
 		userId: user.id,
-		// searchString: searchParams.q,
-		// pageNumber: searchParams?.page ? +searchParams.page : 1,
-		searchString: "",
-		pageNumber: 1,
+		searchString: searchParams.q,
+		pageNumber: searchParams?.page ? +searchParams.page : 1,
 		pageSize: 25,
 	});
 
@@ -41,6 +44,12 @@ const Page = async () => {
 					</>
 				)}
 			</div>
+
+			<Pagination
+				path="search"
+				pageNumber={searchParams?.page ? +searchParams.page : 1}
+				isNext={result.isNext}
+			/>
 		</section>
 	);
 };
